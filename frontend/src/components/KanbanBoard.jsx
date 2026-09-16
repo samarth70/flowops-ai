@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   AlertTriangle, 
@@ -7,7 +7,11 @@ import {
   Clock, 
   DollarSign, 
   ShieldAlert, 
-  UserCheck 
+  UserCheck,
+  Search,
+  Filter,
+  Sparkles,
+  Layers
 } from 'lucide-react';
 
 const STAGES = [
@@ -19,6 +23,9 @@ const STAGES = [
 ];
 
 export default function KanbanBoard({ deals, onSelectDeal, onUpdateStage }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterMode, setFilterMode] = useState('ALL'); // ALL, HITL, ENTERPRISE, HIGH_BANT
+
   const handleQuickAdvance = (e, deal) => {
     e.stopPropagation();
     const currentIndex = STAGES.findIndex(s => s.key === deal.stage);
@@ -36,17 +43,86 @@ export default function KanbanBoard({ deals, onSelectDeal, onUpdateStage }) {
     }
   };
 
+  // Filter deals based on search and pill selection
+  const filteredDeals = deals.filter(deal => {
+    const matchesSearch = 
+      deal.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      deal.account_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      deal.contact_name?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (filterMode === 'HITL') {
+      return deal.governance?.requires_approval && deal.governance?.approval_status === 'PENDING';
+    }
+    if (filterMode === 'ENTERPRISE') {
+      return (deal.amount || 0) >= 50000;
+    }
+    if (filterMode === 'HIGH_BANT') {
+      return (deal.bant?.total_score || 0) >= 80;
+    }
+    return true;
+  });
+
   const calculateStageARR = (stageKey) => {
-    return deals
+    return filteredDeals
       .filter(d => d.stage === stageKey)
       .reduce((sum, d) => sum + (d.amount || 0), 0);
   };
 
+  const getInitials = (name) => {
+    if (!name) return '??';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
+
   return (
     <div>
+      {/* Attio/Refero Inspired Filter & Search Ribbon */}
+      <div className="crm-filter-bar">
+        <div className="search-input-box">
+          <Search size={15} />
+          <input
+            type="text"
+            placeholder="Search deals, accounts, or contacts..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <div className="filter-pills-group">
+          <button
+            className={`filter-pill-btn ${filterMode === 'ALL' ? 'active' : ''}`}
+            onClick={() => setFilterMode('ALL')}
+          >
+            All Deals ({deals.length})
+          </button>
+          <button
+            className={`filter-pill-btn ${filterMode === 'HITL' ? 'active' : ''}`}
+            onClick={() => setFilterMode('HITL')}
+            style={{ color: filterMode === 'HITL' ? '#fda4af' : undefined }}
+          >
+            <ShieldAlert size={13} />
+            Needs Review
+          </button>
+          <button
+            className={`filter-pill-btn ${filterMode === 'ENTERPRISE' ? 'active' : ''}`}
+            onClick={() => setFilterMode('ENTERPRISE')}
+          >
+            💎 Enterprise &gt; $50k
+          </button>
+          <button
+            className={`filter-pill-btn ${filterMode === 'HIGH_BANT' ? 'active' : ''}`}
+            onClick={() => setFilterMode('HIGH_BANT')}
+          >
+            🎯 High BANT (80+)
+          </button>
+        </div>
+      </div>
+
+      {/* Kanban Grid */}
       <div className="kanban-grid">
         {STAGES.map(stage => {
-          const stageDeals = deals.filter(d => d.stage === stage.key);
+          const stageDeals = filteredDeals.filter(d => d.stage === stage.key);
           const stageTotalARR = calculateStageARR(stage.key);
 
           return (
@@ -66,7 +142,7 @@ export default function KanbanBoard({ deals, onSelectDeal, onUpdateStage }) {
               <div className="column-body">
                 {stageDeals.length === 0 ? (
                   <div style={{ 
-                    padding: '2rem 1rem', 
+                    padding: '2.5rem 1rem', 
                     textAlign: 'center', 
                     color: 'var(--text-muted)',
                     fontSize: '0.8rem',
@@ -87,11 +163,14 @@ export default function KanbanBoard({ deals, onSelectDeal, onUpdateStage }) {
                         onClick={() => onSelectDeal(deal)}
                       >
                         <div className="deal-top">
-                          <span className="deal-account">{deal.account_name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <span className="deal-chip">#{String(deal.id).padStart(3, '0')}</span>
+                            <span className="deal-account">{deal.account_name}</span>
+                          </div>
                           {isFlagged ? (
                             <span className="badge badge-approval">
                               <ShieldAlert size={12} />
-                              HITL Review
+                              HITL
                             </span>
                           ) : (
                             <span className="badge badge-bant">
@@ -102,21 +181,33 @@ export default function KanbanBoard({ deals, onSelectDeal, onUpdateStage }) {
 
                         <h3 className="deal-title">{deal.title}</h3>
 
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.6rem' }}>
-                          👤 {deal.contact_name}
+                        <div className="contact-pill">
+                          <span className="contact-avatar">{getInitials(deal.contact_name)}</span>
+                          <span>{deal.contact_name}</span>
+                        </div>
+
+                        {/* Mini BANT Progress Track */}
+                        <div className="mini-progress-track" title={`BANT Score: ${deal.bant?.total_score || 0}/100`}>
+                          <div 
+                            className="mini-progress-fill" 
+                            style={{ 
+                              width: `${deal.bant?.total_score || 0}%`,
+                              background: isFlagged ? 'var(--accent-rose)' : undefined
+                            }} 
+                          />
                         </div>
 
                         {deal.governance?.discount_requested > 0 && (
                           <div style={{ 
                             fontSize: '0.72rem', 
                             color: deal.governance.discount_requested > 20 ? '#fda4af' : 'var(--text-muted)',
-                            marginBottom: '0.5rem',
+                            marginBottom: '0.4rem',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.3rem'
                           }}>
                             <AlertTriangle size={11} />
-                            Discount Requested: <strong>{deal.governance.discount_requested}%</strong>
+                            Discount: <strong>{deal.governance.discount_requested}%</strong>
                           </div>
                         )}
 
@@ -133,12 +224,13 @@ export default function KanbanBoard({ deals, onSelectDeal, onUpdateStage }) {
                                 border: '1px solid rgba(255, 255, 255, 0.1)',
                                 color: 'var(--text-primary)',
                                 borderRadius: 'var(--radius-sm)',
-                                padding: '0.3rem 0.6rem',
+                                padding: '0.3rem 0.65rem',
                                 fontSize: '0.72rem',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.2rem'
+                                gap: '0.2rem',
+                                transition: 'all 0.15s ease'
                               }}
                               onClick={(e) => handleQuickAdvance(e, deal)}
                             >
