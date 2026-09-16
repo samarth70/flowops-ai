@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     GROQ_API_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
     DEFAULT_LLM_PROVIDER: str = "groq"
-    GROQ_MODEL: str = "llama-3.1-8b-instant"
-    GEMINI_MODEL: str = "gemini-2.0-flash"
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
+    GEMINI_MODEL: str = "gemini-2.5-flash"
 
     # Observability (Langfuse Cloud)
     LANGFUSE_PUBLIC_KEY: Optional[str] = None

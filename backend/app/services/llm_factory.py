@@ -56,11 +56,12 @@ class LLMFactory:
             # Candidate models ordered by performance and stability; handles deprecations
             groq_candidates = [
                 settings.GROQ_MODEL,
-                "llama-3.1-8b-instant",
-                "llama3-70b-8192",
-                "llama-3.1-70b-versatile",
-                "llama-3.3-70b-versatile",
-                "gemma2-9b-it"
+                "openai/gpt-oss-120b",
+                "openai/gpt-oss-20b",
+                "qwen/qwen3.8-27b",
+                "groq/compound",
+                "groq/compound-mini",
+                "llama-3.1-8b-instant"
             ]
             seen_groq = set()
             for model_name in groq_candidates:
@@ -101,9 +102,12 @@ class LLMFactory:
         if self.gemini_client:
             gemini_candidates = [
                 settings.GEMINI_MODEL,
-                "gemini-2.0-flash",
-                "gemini-1.5-flash",
-                "gemini-1.5-pro"
+                "gemini-2.5-flash",
+                "gemini-flash-latest",
+                "gemini-2.5-flash-lite",
+                "gemini-3.6-flash",
+                "gemini-2.5-pro",
+                "gemini-pro-latest"
             ]
             seen_gem = set()
             for gem_model in gemini_candidates:
