@@ -49,33 +49,3 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-
-@app.get("/api/debug-models")
-def debug_models():
-    groq_models = []
-    gemini_models = []
-    groq_err = None
-    gemini_err = None
-
-    if settings.has_groq:
-        try:
-            from groq import Groq
-            client = Groq(api_key=settings.GROQ_API_KEY)
-            models = client.models.list()
-            groq_models = [m.id for m in models.data]
-        except Exception as e:
-            groq_err = str(e)
-
-    if settings.has_gemini:
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=settings.GEMINI_API_KEY)
-            models = genai.list_models()
-            gemini_models = [m.name for m in models if "generateContent" in getattr(m, "supported_generation_methods", [])]
-        except Exception as e:
-            gemini_err = str(e)
-
-    return {
-        "groq": {"models": groq_models, "error": groq_err},
-        "gemini": {"models": gemini_models, "error": gemini_err}
-    }
