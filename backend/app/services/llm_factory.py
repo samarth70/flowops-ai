@@ -8,6 +8,17 @@ from app.config import settings
 
 logger = logging.getLogger("FlowOps.LLM")
 
+def safe_extract_json(raw_text: str) -> Dict[str, Any]:
+    text = raw_text.strip()
+    if "```" in text:
+        match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
+        if match:
+            text = match.group(1).strip()
+        else:
+            text = re.sub(r"^```(?:json)?\s*", "", text)
+            text = re.sub(r"\s*```$", "", text)
+    return json.loads(text.strip())
+
 class LLMFactory:
     """
     Unified LLM Client providing:
@@ -40,53 +51,82 @@ class LLMFactory:
     def generate_json(self, system_prompt: str, user_prompt: str, temperature: float = 0.2) -> Dict[str, Any]:
         start_time = time.time()
         
-        # 1. Try Groq (Primary Free Tier)
+        # 1. Try Groq (Primary Free Tier with multi-model failover)
         if self.groq_client:
-            try:
-                response = self.groq_client.chat.completions.create(
-                    model=settings.GROQ_MODEL,
-                    messages=[
-                        {"role": "system", "content": system_prompt + "\nYou must reply with valid JSON only. Do not include markdown codeblocks or extra text."},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    response_format={"type": "json_object"},
-                    temperature=temperature,
-                    max_tokens=2048
-                )
-                raw_text = response.choices[0].message.content
-                parsed = json.loads(raw_text)
-                latency = int((time.time() - start_time) * 1000)
-                tokens = (response.usage.total_tokens if response.usage else 850)
-                return {
-                    "data": parsed,
-                    "model": settings.GROQ_MODEL,
-                    "provider": "groq",
-                    "latency_ms": latency,
-                    "tokens": tokens
-                }
-            except Exception as e:
-                logger.warning(f"Groq generation failed, attempting Gemini failover: {e}")
+            # Candidate models ordered by performance and stability; handles deprecations
+            groq_candidates = [
+                settings.GROQ_MODEL,
+                "llama-3.3-70b-versatile",
+                "llama-3.1-8b-instant",
+                "gemma2-9b-it"
+            ]
+            seen_groq = set()
+            for model_name in groq_candidates:
+                if not model_name or model_name in seen_groq:
+                    continue
+                seen_groq.add(model_name)
 
-        # 2. Try Gemini (Failover Free Tier)
+                try:
+                    response = self.groq_client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": system_prompt + "\nYou must reply with valid JSON only. Do not include markdown codeblocks or extra text."},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=temperature,
+                        max_tokens=2048
+                    )
+                    raw_text = response.choices[0].message.content
+                    parsed = safe_extract_json(raw_text)
+                    latency = int((time.time() - start_time) * 1000)
+                    tokens = (response.usage.total_tokens if response.usage else 850)
+                    return {
+                        "data": parsed,
+                        "model": model_name,
+                        "provider": "groq",
+                        "latency_ms": latency,
+                        "tokens": tokens
+                    }
+                except Exception as e:
+                    err_str = str(e).lower()
+                    if "401" in err_str or "invalid api key" in err_str or "invalid_api_key" in err_str:
+                        logger.warning(f"Groq API authentication failed (401 invalid key). Cascading to Gemini failover: {e}")
+                        break  # Key is invalid, no use retrying different models on same key
+                    logger.warning(f"Groq model '{model_name}' failed or obsolete: {e}. Trying next candidate...")
+
+        # 2. Try Gemini (Failover Free Tier with multi-model cascade)
         if self.gemini_client:
-            try:
-                model = self.gemini_client.GenerativeModel(
-                    model_name=settings.GEMINI_MODEL,
-                    generation_config={"response_mime_type": "application/json"}
-                )
-                combined = f"SYSTEM: {system_prompt}\n\nUSER: {user_prompt}"
-                res = model.generate_content(combined)
-                parsed = json.loads(res.text)
-                latency = int((time.time() - start_time) * 1000)
-                return {
-                    "data": parsed,
-                    "model": settings.GEMINI_MODEL,
-                    "provider": "gemini",
-                    "latency_ms": latency,
-                    "tokens": 920
-                }
-            except Exception as e:
-                logger.warning(f"Gemini generation failed: {e}")
+            gemini_candidates = [
+                settings.GEMINI_MODEL,
+                "gemini-2.0-flash",
+                "gemini-1.5-flash",
+                "gemini-1.5-pro"
+            ]
+            seen_gem = set()
+            for gem_model in gemini_candidates:
+                if not gem_model or gem_model in seen_gem:
+                    continue
+                seen_gem.add(gem_model)
+
+                try:
+                    model = self.gemini_client.GenerativeModel(
+                        model_name=gem_model,
+                        generation_config={"response_mime_type": "application/json"}
+                    )
+                    combined = f"SYSTEM: {system_prompt}\n\nUSER: {user_prompt}\n\nOutput only valid JSON."
+                    res = model.generate_content(combined)
+                    parsed = safe_extract_json(res.text)
+                    latency = int((time.time() - start_time) * 1000)
+                    return {
+                        "data": parsed,
+                        "model": gem_model,
+                        "provider": "gemini",
+                        "latency_ms": latency,
+                        "tokens": 920
+                    }
+                except Exception as e:
+                    logger.warning(f"Gemini model '{gem_model}' failed: {e}. Trying next Gemini candidate...")
 
         # 3. Fallback Offline Enterprise Mock Engine
         return self._mock_reasoning_engine(system_prompt, user_prompt, start_time)
