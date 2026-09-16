@@ -65,7 +65,7 @@ export default function ObservabilityModal() {
             gap: '0.4rem'
           }}>
             <Sparkles size={14} />
-            <span>50,000 Free Traces/Mo Tier</span>
+            <span>Telemetry Pipeline • OpenTelemetry V2</span>
           </div>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function ObservabilityModal() {
                       🪙 {trace.total_tokens} tokens
                     </span>
                     <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600 }}>
-                      💵 $0.000 (Free Tier)
+                      ⚡ Trace Verified
                     </span>
 
                     {/* Thumbs Up / Down Score */}

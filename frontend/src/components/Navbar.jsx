@@ -79,22 +79,29 @@ export default function Navbar({ activeTab, setActiveTab, onNewInboundClick, hit
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.4rem',
-          padding: '0.35rem 0.75rem',
-          background: 'rgba(16, 185, 129, 0.1)',
+          gap: '0.45rem',
+          padding: '0.35rem 0.8rem',
+          background: 'rgba(16, 185, 129, 0.08)',
           border: '1px solid rgba(16, 185, 129, 0.25)',
           borderRadius: 'var(--radius-full)',
           fontSize: '0.75rem',
           color: '#34d399',
           fontWeight: 600
         }}>
-          <Zap size={13} />
-          <span>100% Free Tier</span>
+          <span style={{
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            background: '#10b981',
+            boxShadow: '0 0 8px #10b981',
+            display: 'inline-block'
+          }} />
+          <span>Multi-Agent Engine Active</span>
         </div>
 
         <button className="btn-primary" onClick={onNewInboundClick}>
-          <PlusCircle size={16} />
-          <span>Ingest Inbound Lead</span>
+          <PlusCircle size={15} />
+          <span style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>New Lead Ingestion</span>
         </button>
       </div>
     </nav>
