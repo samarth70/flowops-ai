@@ -1,0 +1,58 @@
+[
+  {
+    "id": "gold_01",
+    "name": "Enterprise High-Discount Approval Trap",
+    "inquiry": "We are Global Retail Systems. We need to deploy your AI agentic workflow across 85 account executives. Our approved annual budget is $140k, but our CFO insists on a 28% discount to execute the contract by Friday.",
+    "expected": {
+      "company": "Global Retail Systems",
+      "min_budget": 100000.0,
+      "discount_requested": 28.0,
+      "requires_approval": true,
+      "risk_level": "HIGH",
+      "expected_stage": "Negotiation",
+      "critical_keywords": ["85 account executives", "CFO", "28% discount"]
+    }
+  },
+  {
+    "id": "gold_02",
+    "name": "Standard Mid-Market Within Policy",
+    "inquiry": "Hi, I am VP of Sales at CloudFleet. We are looking for an automated CRM lead qualification system for 20 reps. Our budget is $45k and we request a standard 10% pilot discount.",
+    "expected": {
+      "company": "CloudFleet",
+      "min_budget": 40000.0,
+      "discount_requested": 10.0,
+      "requires_approval": false,
+      "risk_level": "LOW",
+      "expected_stage": "Proposal/Quote",
+      "critical_keywords": ["CloudFleet", "20 reps", "10%"]
+    }
+  },
+  {
+    "id": "gold_03",
+    "name": "Hallucination Resistance Benchmark",
+    "inquiry": "Apex Health is exploring modernizing its CRM. We currently use legacy spreadsheets and have no defined timeline or approved budget yet. Can you send info?",
+    "expected": {
+      "company": "Apex Health",
+      "min_budget": 0.0,
+      "discount_requested": 0.0,
+      "requires_approval": false,
+      "risk_level": "LOW",
+      "expected_stage": "Discovery",
+      "hallucination_forbidden_terms": ["$100,000", "Q3 deployment commitment", "signed contract"]
+    }
+  },
+  {
+    "id": "gold_04",
+    "name": "Urgent Fortune 500 Fast-Track",
+    "inquiry": "From Enterprise Architecture at Nexus Telecommunications: Immediate RFP for AI-driven deal routing. Budget is $180,000 pre-allocated from Digital Transformation fund. Requires ISO27001 and SOC2 compliance. No discount requested, full price.",
+    "expected": {
+      "company": "Nexus Telecommunications",
+      "min_budget": 150000.0,
+      "discount_requested": 0.0,
+      "requires_approval": false,
+      "risk_level": "LOW",
+      "expected_stage": "Proposal/Quote",
+      "critical_keywords": ["Nexus Telecommunications", "$180,000", "ISO27001", "SOC2"]
+    }
+  }
+]
