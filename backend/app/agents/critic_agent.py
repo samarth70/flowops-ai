@@ -36,11 +36,24 @@ AI SUMMARY: {strat_data.get('ai_summary')}
         # Ensure standard defaults if simulated
         if not data or "critique_passed" not in data:
             discount = float(triage_data.get("discount_requested", 0.0))
-            passed = discount <= 20.0
+            raw_lower = raw_inquiry.lower()
+            needs_sla_addendum = "99.999" in raw_lower or "vpc" in raw_lower
+            passed = discount <= 20.0 and not needs_sla_addendum
+            
+            notes = []
+            refined_pitch = strat_data.get("ai_pitch_draft", "")
+            if discount > 20.0:
+                notes.append(f"Reflexion alert: {discount}% discount violates 20% margin guardrail; routed to HITL approval.")
+            if needs_sla_addendum:
+                notes.append("Reflexion compliance note: 99.999% SLA and VPC deployment require Tier-1 Enterprise Schedule A addendum.")
+                refined_pitch += "\n\nNote: Dedicated VPC deployment and 99.999% high-availability SLA have been included under Tier-1 Enterprise Schedule A addendum."
+            if passed:
+                notes.append("Self-reflection verified: pitch language and pricing comply with standard enterprise guidelines.")
+
             data = {
                 "critique_passed": passed,
-                "critique_notes": "Self-reflection verified: pitch language is compliant with standard enterprise SLA guidelines." if passed else f"Reflexion alert: {discount}% discount violates standard margin guardrails. Flagged for sales leadership review.",
-                "refined_pitch": strat_data.get("ai_pitch_draft")
+                "critique_notes": " ".join(notes),
+                "refined_pitch": refined_pitch
             }
             result["data"] = data
 

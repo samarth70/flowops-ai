@@ -98,25 +98,42 @@ class LLMFactory:
 
         # Dynamic extraction from user_prompt
         company = "Enterprise Prospect Corp"
-        if "global retail systems" in text_lower:
+        # 1. Regex search for explicit company indicators
+        comp_match = re.search(r'(?:at|we are|from|company:?|representing)\s+([A-Z][a-zA-Z0-9\s&]{2,30}?)(?:\.|\,|\n|!|\s+needs|\s+is|\s+want|\s+looking|\s+requesting)', user_prompt, re.IGNORECASE)
+        if comp_match:
+            candidate = comp_match.group(1).strip()
+            # filter out non-company words
+            if candidate.lower() not in ["the", "an", "our", "immediate", "urgent"]:
+                company = candidate
+        elif "cybershield" in text_lower:
+            company = "CyberShield Security Corp"
+        elif "nexus telecommunications" in text_lower or "nexus" in text_lower:
+            company = "Nexus Telecommunications"
+        elif "global retail" in text_lower:
             company = "Global Retail Systems"
         elif "cloudfleet" in text_lower:
             company = "CloudFleet"
         elif "apex health" in text_lower:
-            company = "Apex Health"
-        elif "nexus telecommunications" in text_lower or "nexus" in text_lower:
-            company = "Nexus Telecommunications"
+            company = "Apex Health Systems"
+        elif "fintech velocity" in text_lower or "fintech" in text_lower:
+            company = "FinTech Velocity Ltd"
         elif "acme" in text_lower:
             company = "Acme Global Logistics"
-        elif "fintech" in text_lower:
-            company = "Fintech Velocity Ltd"
         elif "nordic" in text_lower:
             company = "Nordic Scaleups Inc"
         else:
-            # Try to match "at [Name]" or "We are [Name]"
-            m = re.search(r'(?:at|we are|from)\s+([A-Z][a-zA-Z0-9\s]{2,25})', user_prompt)
-            if m:
-                company = m.group(1).strip()
+            # Check for domain in email e.g. alex@company.com
+            email_domain = re.search(r'@([a-zA-Z0-9\-]+)\.(?:com|org|io|net|se)', user_prompt)
+            if email_domain:
+                company = email_domain.group(1).capitalize() + " Corp"
+
+        # Contact name extraction
+        contact_name = "Alex Rivera"
+        name_match = re.search(r'(?:my name is|i am|from)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)', user_prompt, re.IGNORECASE)
+        if name_match:
+            candidate_name = name_match.group(1).strip()
+            if candidate_name.lower() not in ["enterprise", "sales", "vp", "cfo", "immediate"]:
+                contact_name = candidate_name
 
         # Amount extraction
         amount = 35000.0
@@ -137,13 +154,28 @@ class LLMFactory:
 
         # Discount extraction
         discount = 0.0
-        disc_match = re.search(r'(\d+)%\s*discount', text_lower)
+        disc_match = re.search(r'(\d+)%\s*(?:discount|off|volume)', text_lower)
         if disc_match:
             discount = float(disc_match.group(1))
         elif "discount" in text_lower:
             disc_match2 = re.search(r'discount.*?(\d+)%', text_lower)
             if disc_match2:
                 discount = float(disc_match2.group(1))
+
+        # Dynamic needs extraction
+        extracted_needs = []
+        if "triage" in text_lower or "lead" in text_lower:
+            extracted_needs.append("Automated inbound lead qualification and triage")
+        if "crm" in text_lower:
+            extracted_needs.append("Bidirectional CRM stage progression and opportunity tracking")
+        if "sla" in text_lower or "99.9" in text_lower:
+            extracted_needs.append("Enterprise SLA tier with high-availability commitment")
+        if "soc2" in text_lower or "compliance" in text_lower or "iso" in text_lower or "security" in text_lower:
+            extracted_needs.append("Enterprise SOC2 and compliance governance verification")
+        if "discount" in text_lower:
+            extracted_needs.append(f"Volume pricing evaluation (requested {discount}%)")
+        if not extracted_needs:
+            extracted_needs = ["Automate CRM workflow", "Multi-agent deal desk orchestration"]
 
         if "triage" in system_prompt.lower():
             return {
