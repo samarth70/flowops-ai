@@ -1,4 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const LIVE_BACKEND_URL = 'https://flowops-crm-backend-376488380189.us-central1.run.app';
+const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const API_BASE = import.meta.env.VITE_API_URL || (isLocal ? 'http://localhost:8000' : LIVE_BACKEND_URL);
 
 export async function fetchDeals() {
   const res = await fetch(`${API_BASE}/api/crm/deals`);
