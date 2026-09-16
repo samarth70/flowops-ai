@@ -56,8 +56,10 @@ class LLMFactory:
             # Candidate models ordered by performance and stability; handles deprecations
             groq_candidates = [
                 settings.GROQ_MODEL,
-                "llama-3.3-70b-versatile",
                 "llama-3.1-8b-instant",
+                "llama3-70b-8192",
+                "llama-3.1-70b-versatile",
+                "llama-3.3-70b-versatile",
                 "gemma2-9b-it"
             ]
             seen_groq = set()
