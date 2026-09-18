@@ -65,7 +65,7 @@ FlowOps AI models standard Salesforce opportunity stages:
 ## 2. What FlowOps AI Does (The Business Problem)
 
 ### The Problem
-In enterprise sales teams (like those you supported at **Genpact** for clients like **GE and Huntsman**), sales reps spend **over 65% of their working hours on administrative CRM data entry**:
+In enterprise sales teams, sales reps spend **over 65% of their working hours on administrative CRM data entry**:
 * Manually copying text from emails into Salesforce.
 * Calculating discount margins.
 * Seeking executive approvals over Slack/email for pricing exceptions.
@@ -119,7 +119,7 @@ When presenting this project to engineering hiring managers, AI leads, or RevOps
 
 ### Key Talking Points:
 1. **Enterprise Domain Expertise**:
-   > *"Drawing on my experience at Genpact designing Salesforce CRM workflows for GE and Huntsman, I noticed sales teams lose days on pricing approvals and manual data entry. I architected FlowOps AI to automate inbound qualification while strictly enforcing corporate margin guardrails."*
+   > *"Drawing on my experience at my previous company designing Salesforce CRM workflows, I noticed sales teams lose days on pricing approvals and manual data entry. I architected FlowOps AI to automate inbound qualification while strictly enforcing corporate margin guardrails."*
 
 2. **State-of-the-Art Multi-Agent Orchestration**:
    > *"Instead of building a simple chatbot, I built a stateful LangGraph-style workflow featuring entity extraction, BANT scoring, an autonomous Reflexion Critic loop, and a Human-in-the-Loop interceptor for high-risk transactions."*
