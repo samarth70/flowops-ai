@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0B0F19;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #F9FAFB;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: radial-gradient(circle at 50% 20%, #161F36 0%, #0B0F19 80%);
+      }
+
+      /* Base Scene Full Frame */
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Glow background effect */
+      .ambient-glow {
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(16, 185, 129, 0.08) 50%, transparent 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Typography */
+      .eyebrow {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: #34D399;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .eyebrow-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #10B981;
+        box-shadow: 0 0 12px #10B981;
+      }
+      .hero-title {
+        font-size: 76px;
+        font-weight: 800;
+        line-height: 1.1;
+        text-align: center;
+        max-width: 1400px;
+        letter-spacing: -0.03em;
+        color: #FFFFFF;
+        margin-bottom: 28px;
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #60A5FA 0%, #34D399 50%, #A78BFA 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .hero-subtitle {
+        font-size: 28px;
+        font-weight: 400;
+        color: #E5E7EB;
+        text-align: center;
+        max-width: 1000px;
+        line-height: 1.5;
+        margin-bottom: 40px;
+      }
+
+      /* Badges */
+      .pill-row {
+        display: flex;
+        gap: 16px;
+        z-index: 1;
+      }
+      .pill {
+        padding: 10px 22px;
+        border-radius: 9999px;
+        font-size: 16px;
+        font-weight: 600;
+        background: #111827;
+        border: 1px solid #374151;
+        color: #F3F4F6;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Scene 2: Agent Cascade */
+      .scene2-container {
+        width: 1560px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        z-index: 1;
+      }
+      .inquiry-banner {
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 16px;
+        padding: 24px 36px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .inquiry-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #FFFFFF;
+      }
+      .inquiry-meta {
+        font-size: 18px;
+        color: #E5E7EB;
+      }
+      .deal-badge {
+        background: #065F46;
+        color: #D1FAE5;
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .agent-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+      }
+      .agent-card {
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 16px;
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        position: relative;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      }
+      .agent-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .agent-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: #1E293B;
+        border: 1px solid #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .agent-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #FFFFFF;
+      }
+      .agent-metric {
+        font-size: 14px;
+        color: #34D399;
+        font-weight: 600;
+        font-family: monospace;
+      }
+      .agent-desc {
+        font-size: 15px;
+        color: #D1D5DB;
+        line-height: 1.5;
+        flex-grow: 1;
+      }
+      .agent-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #34D399;
+      }
+
+      /* Scene 3: BANT Matrix & Guardrail */
+      .scene3-container {
+        width: 1560px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        z-index: 1;
+      }
+      .bant-card {
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 20px;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+      .score-display {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+      }
+      .score-circle {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: #064E3B;
+        border: 4px solid #10B981;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+      }
+      .score-number {
+        font-size: 48px;
+        font-weight: 900;
+        color: #ECFDF5;
+        line-height: 1;
+      }
+      .score-label {
+        font-size: 13px;
+        color: #A7F3D0;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .score-tier-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin-bottom: 6px;
+      }
+      .tier-badge {
+        display: inline-block;
+        background: #065F46;
+        color: #D1FAE5;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 6px;
+      }
+      .criteria-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .criteria-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 16px;
+        color: #E5E7EB;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #1F2937;
+      }
+      .criteria-val {
+        font-weight: 700;
+        color: #34D399;
+      }
+
+      .guardrail-card {
+        background: #111827;
+        border: 2px solid #D97706;
+        border-radius: 20px;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 0 35px rgba(217, 119, 6, 0.2);
+      }
+      .guardrail-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: #FBBF24;
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+      }
+      .guardrail-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: #78350F;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+      .guardrail-body {
+        font-size: 26px;
+        font-weight: 700;
+        color: #FFFFFF;
+        line-height: 1.4;
+      }
+      .guardrail-desc {
+        font-size: 18px;
+        color: #E5E7EB;
+        line-height: 1.6;
+      }
+      .hitl-action-box {
+        background: #1F2937;
+        border: 1px solid #4B5563;
+        border-radius: 12px;
+        padding: 18px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .hitl-status-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #F3F4F6;
+      }
+      .hitl-btn {
+        background: #059669;
+        color: #FFFFFF;
+        font-weight: 800;
+        padding: 10px 22px;
+        border-radius: 8px;
+        font-size: 15px;
+        box-shadow: 0 0 15px rgba(5, 150, 105, 0.4);
+      }
+
+      /* Scene 4: Outro & CRM */
+      .outro-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        z-index: 1;
+      }
+      .brand-logo {
+        font-size: 92px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .logo-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #10B981;
+        box-shadow: 0 0 20px #10B981;
+      }
+      .outro-subtitle {
+        font-size: 34px;
+        font-weight: 600;
+        color: #E5E7EB;
+        margin-bottom: 44px;
+      }
+      .url-card {
+        background: #111827;
+        border: 2px solid #3B82F6;
+        padding: 18px 42px;
+        border-radius: 9999px;
+        font-size: 26px;
+        font-weight: 700;
+        color: #93C5FD;
+        box-shadow: 0 0 35px rgba(59, 130, 246, 0.3);
+        margin-bottom: 40px;
+      }
+      .infra-row {
+        display: flex;
+        gap: 20px;
+      }
+      .infra-tag {
+        font-size: 16px;
+        font-weight: 600;
+        color: #9CA3AF;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .infra-tag span {
+        color: #34D399;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="20"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Audio Track -->
+      <audio
+        id="bgm-audio"
+        src="./assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3"
+        data-start="0"
+        data-duration="20"
+        data-volume="0.85"
+      ></audio>
+
+      <!-- Ambient Glow -->
+      <div class="ambient-glow"></div>
+
+      <!-- Scene 1: The Problem Hook & Platform Reveal (0.0s - 4.5s) -->
+      <div id="scene1" class="clip" data-start="0" data-duration="4.5">
+        <div class="eyebrow" id="s1-eyebrow">
+          <div class="eyebrow-dot"></div>
+          REVOPS VELOCITY PROBLEM
+        </div>
+        <h1 class="hero-title" id="s1-title">
+          Manual Deal Desk is Burning Your <span class="gradient-text">Sales Velocity.</span>
+        </h1>
+        <p class="hero-subtitle" id="s1-subtitle">
+          Meet FlowOps AI: Autonomous Multi-Agent Deal Desk & Governance Engine
+        </p>
+        <div class="pill-row" id="s1-pills">
+          <div class="pill">⚡ Groq LPU LPUs (120B)</div>
+          <div class="pill">🧠 Google Gemini Failover</div>
+          <div class="pill">🛡️ Human-in-the-Loop Governance</div>
+          <div class="pill">📊 Langfuse Telemetry</div>
+        </div>
+      </div>
+
+      <!-- Scene 2: The Multi-Agent Execution Cascade (4.2s - 9.8s) -->
+      <div id="scene2" class="clip" data-start="4.2" data-duration="5.6">
+        <div class="scene2-container">
+          <div class="inquiry-banner" id="s2-banner">
+            <div>
+              <div class="inquiry-title">Inbound Deal: Horizon Fintech Ltd</div>
+              <div class="inquiry-meta">Enterprise Tier • 250 Seats • $85,000 ARR • Requested 22% Discount</div>
+            </div>
+            <div class="deal-badge">INCOMING INQUIRY</div>
+          </div>
+
+          <div class="agent-grid">
+            <div class="agent-card" id="card-1">
+              <div class="agent-header">
+                <div class="agent-icon">🎯</div>
+                <div>
+                  <div class="agent-name">Lead Triage Agent</div>
+                  <div class="agent-metric">1,552ms • 480 tok</div>
+                </div>
+              </div>
+              <div class="agent-desc">Extracted company entity, $85k contract size, and high purchase intent.</div>
+              <div class="agent-status">✓ Extraction Verified</div>
+            </div>
+
+            <div class="agent-card" id="card-2">
+              <div class="agent-header">
+                <div class="agent-icon">⚖️</div>
+                <div>
+                  <div class="agent-name">BANT Qualification</div>
+                  <div class="agent-metric">1,041ms • 520 tok</div>
+                </div>
+              </div>
+              <div class="agent-desc">Evaluated Budget, Authority, Need, Timeline against ICP criteria: 95/100.</div>
+              <div class="agent-status">✓ Tier 1 Enterprise</div>
+            </div>
+
+            <div class="agent-card" id="card-3">
+              <div class="agent-header">
+                <div class="agent-icon">🛡️</div>
+                <div>
+                  <div class="agent-name">Deal Strategist</div>
+                  <div class="agent-metric">1,919ms • 690 tok</div>
+                </div>
+              </div>
+              <div class="agent-desc">Discount (22%) exceeds 15% threshold. Triggered Director HITL guardrail.</div>
+              <div class="agent-status">✓ Strategy Formulated</div>
+            </div>
+
+            <div class="agent-card" id="card-4">
+              <div class="agent-header">
+                <div class="agent-icon">🔍</div>
+                <div>
+                  <div class="agent-name">Reflexion Critic</div>
+                  <div class="agent-metric">1,316ms • 310 tok</div>
+                </div>
+              </div>
+              <div class="agent-desc">Self-reflective policy review: verified SLA grounding & zero hallucination.</div>
+              <div class="agent-status">✓ Policy Approved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 3: BANT Matrix & Margin Governance (9.5s - 15.0s) -->
+      <div id="scene3" class="clip" data-start="9.5" data-duration="5.5">
+        <div class="scene3-container">
+          <div class="bant-card" id="s3-bant">
+            <div class="score-display">
+              <div class="score-circle">
+                <div class="score-number" id="bant-counter">95</div>
+                <div class="score-label">Score</div>
+              </div>
+              <div>
+                <div class="score-tier-title">TIER 1 ENTERPRISE</div>
+                <div class="tier-badge">Highest Priority Opportunity</div>
+              </div>
+            </div>
+            <div class="criteria-list">
+              <div class="criteria-row">
+                <span>Budget Verified ($85,000 Horizon ARR)</span>
+                <span class="criteria-val">25 / 25 pts</span>
+              </div>
+              <div class="criteria-row">
+                <span>Authority Confirmed (VP of Sales Outreach)</span>
+                <span class="criteria-val">25 / 25 pts</span>
+              </div>
+              <div class="criteria-row">
+                <span>Need Validated (Inbound CRM Automation RFP)</span>
+                <span class="criteria-val">25 / 25 pts</span>
+              </div>
+              <div class="criteria-row">
+                <span>Timeline Matched (Immediate Q3 Deployment)</span>
+                <span class="criteria-val">20 / 25 pts</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="guardrail-card" id="s3-guardrail">
+            <div class="guardrail-header">
+              <div class="guardrail-icon">⚠️</div>
+              <div>MARGIN GOVERNANCE INTERCEPTOR</div>
+            </div>
+            <div class="guardrail-body">
+              "Requested 22% discount exceeds 15% enterprise guardrail."
+            </div>
+            <div class="guardrail-desc">
+              Autonomous deal creation halted. Opportunity instantly escalated to Sales Director Human-in-the-Loop review.
+            </div>
+            <div class="hitl-action-box">
+              <div class="hitl-status-text">Director Status: Exception Approved (18%)</div>
+              <div class="hitl-btn">✓ APPROVED</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scene 4: Outro, CRM Sync & Launch Callout (14.8s - 20.0s) -->
+      <div id="scene4" class="clip" data-start="14.8" data-duration="5.2">
+        <div class="outro-container" id="s4-content">
+          <div class="brand-logo">
+            FlowOps AI
+            <div class="logo-dot"></div>
+          </div>
+          <div class="outro-subtitle">
+            Qualify Faster. Protect Margins. Zero Busywork.
+          </div>
+          <div class="url-card">
+            https://flowops-ai.pages.dev
+          </div>
+          <div class="infra-row">
+            <div class="infra-tag"><span>●</span> Cloudflare Pages Edge</div>
+            <div class="infra-tag"><span>●</span> Google Cloud Run Backend</div>
+            <div class="infra-tag"><span>●</span> Sub-Second Multi-Agent Inference</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GSAP Master Animation Timeline -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1 (0.0s - 4.5s)
+      tl.to("#scene1", { opacity: 1, duration: 0.4 }, 0.0);
+      tl.fromTo("#s1-eyebrow", { y: -20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" }, 0.2);
+      tl.fromTo("#s1-title", { scale: 0.95, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "power3.out" }, 0.4);
+      tl.fromTo("#s1-subtitle", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" }, 0.8);
+      tl.fromTo("#s1-pills .pill", { y: 15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.15, ease: "back.out(1.5)" }, 1.3);
+      tl.to("#scene1", { opacity: 0, scale: 0.96, duration: 0.4, ease: "power2.in" }, 4.0);
+
+      // Scene 2 (4.2s - 9.8s)
+      tl.to("#scene2", { opacity: 1, duration: 0.4 }, 4.2);
+      tl.fromTo("#s2-banner", { y: -24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 4.4);
+      tl.fromTo("#card-1", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 4.8);
+      tl.fromTo("#card-2", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 5.5);
+      tl.fromTo("#card-3", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 6.2);
+      tl.fromTo("#card-4", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, 6.9);
+      tl.to("#scene2", { opacity: 0, x: -40, duration: 0.4, ease: "power2.in" }, 9.4);
+
+      // Scene 3 (9.5s - 15.0s)
+      tl.to("#scene3", { opacity: 1, duration: 0.4 }, 9.5);
+      tl.fromTo("#s3-bant", { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 9.7);
+      tl.fromTo("#s3-guardrail", { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 10.0);
+      tl.to("#scene3", { opacity: 0, scale: 1.04, duration: 0.4, ease: "power2.in" }, 14.6);
+
+      // Scene 4 (14.8s - 20.0s)
+      tl.to("#scene4", { opacity: 1, duration: 0.4 }, 14.8);
+      tl.fromTo("#s4-content", { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "power3.out" }, 15.0);
+      tl.fromTo(".brand-logo", { y: -20 }, { y: 0, duration: 0.6, ease: "power2.out" }, 15.2);
+      tl.fromTo(".url-card", { scale: 0.92 }, { scale: 1, duration: 0.5, ease: "back.out(1.7)" }, 15.8);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

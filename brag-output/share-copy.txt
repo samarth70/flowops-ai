@@ -1,0 +1,4 @@
+Meet FlowOps AI: an autonomous multi-agent deal desk that qualifies enterprise inbound inquiries, scores BANT criteria (95/100), enforces margin governance with Human-in-the-Loop interceptors, and syncs directly to your CRM in under 2 seconds.
+
+Built with LangGraph, Groq LPUs, and Langfuse observability.
+Live demo: https://flowops-ai.pages.dev
