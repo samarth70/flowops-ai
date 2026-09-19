@@ -13,6 +13,14 @@
 
 ---
 
+## 🎬 System Walkthrough
+
+<p align="center">
+  <img src="docs/demo.gif" alt="FlowOps AI System Walkthrough Demo" width="100%" />
+</p>
+
+---
+
 ## 🎯 Strategic Alignment with Resume Experience
 
 This project directly demonstrates real-world competencies across your core domains:
