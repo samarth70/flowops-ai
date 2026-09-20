@@ -21,7 +21,7 @@
 
 ---
 
-## 🎯 Strategic Alignment with Resume Experience
+## 🎯 Resume Experience
 
 This project directly demonstrates real-world competencies across your core domains:
 - **Enterprise CRM Systems (Salesforce / Genpact Background)**: Replicates real-world Salesforce deal lifecycles (Leads, Opportunities, BANT scoring, custom discount governance, and stage progression).
