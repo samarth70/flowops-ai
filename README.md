@@ -9,7 +9,7 @@
 [![Evaluation](https://img.shields.io/badge/Evaluation-DeepEval%20%26%20LLM--as--a--Judge-ff69b4.svg)](https://github.com/confident-ai/deepeval)
 [![100% Free Tier](https://img.shields.io/badge/Deployment-100%25%20Free%20Tier-success.svg)](#free-tier-architecture)
 
-**FlowOps AI** is an enterprise-grade, 100% free-tiered, fully deployable Autonomous Agentic CRM Deal Desk and LLM Evaluation Engine. Built to solve critical enterprise sales friction, it orchestrates multi-agent qualification workflows, enforces strict human-in-the-loop (HITL) margin guardrails, provides real-time distributed tracing via Langfuse, and continuously benchmarks performance against 7 evaluation metrics.
+**FlowOps AI** ([Live Demo](https://flowops-ai.pages.dev/)) is an enterprise-grade, 100% free-tiered, fully deployable Autonomous Agentic CRM Deal Desk and LLM Evaluation Engine. Built to solve critical enterprise sales friction, it orchestrates multi-agent qualification workflows, enforces strict human-in-the-loop (HITL) margin guardrails, provides real-time distributed tracing via Langfuse, and continuously benchmarks performance against 7 evaluation metrics.
 
 ---
 
